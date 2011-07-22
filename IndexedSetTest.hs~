@@ -1,0 +1,24 @@
+module Main where
+
+import Test.Hspec
+import Test.Hspec.HUnit
+import Test.HUnit
+import Data.Either
+import Control.Monad.Instances
+import Control.Monad
+
+import IndexedSet
+
+must_eq actual expected = assertEqual "" expected actual
+
+assertEmpty lst = assertEqual "" [] lst
+
+testInsert = describe "inserting" [
+  it "Should accept integers" (let ixset = insertMany [1,2,3,4,5] empty in
+                                and $ map (flip elem ixset) [1,2,3,4,5]
+     ]
+  ]
+
+tests = descriptions [testInsert]
+
+main = hspec tests
