@@ -45,6 +45,9 @@ testInsert = describe "indexing" [
     (not $ 1 `member` newset) &&
     (2 `member` newset) &&
     (queryByIndex "2" intsetindex newset == S.fromList [2])
+    ),
+  it "should allow range queries" (
+    queryRangeByIndex [IndexedSet.GT "3", IndexedSet.LT "5"] intsetindex intset `must_eq` [4]
     )
   ]
 

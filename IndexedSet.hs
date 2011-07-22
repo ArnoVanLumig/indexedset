@@ -6,6 +6,7 @@ module IndexedSet (
   insert,
   insertMany,
   queryByIndex,
+  queryRangeByIndex,
   addIndex,
   removeIndex,
   toSet,
@@ -14,7 +15,8 @@ module IndexedSet (
   null,
   delete,
   filter,
-  map
+  map,
+  Cond (..)
   ) where
 
 import           Data.Map (Map)
@@ -23,7 +25,7 @@ import           Data.Set (Set)
 import qualified Data.Set as S
 import           Data.Maybe
 import           Data.Typeable
-import           Prelude hiding (filter, map, null)
+import           Prelude hiding (filter, map, null, EQ, GT, LT)
 import qualified Prelude as P
 
 -- | Inserts an item into the set, also updates the indices. Running time: O((k+1) log n)
@@ -39,6 +41,22 @@ insertMany lst set = foldl (flip insert) set lst
 queryByIndex :: (Typeable b) => b -> Index -> IndexedSet a -> Set a
 queryByIndex b ix (IndexedSet s m i) = case fromJust $ M.lookup ix m of
     SetIndex fn indexMap -> maybeSet $ M.lookup (fromJust $ cast b) indexMap
+
+-- | Query a set index based on some conditions. Useful for querying a range. This is an AND-based query; all conditions must match
+queryRangeByIndex :: (Ord b, Typeable b) => [Cond b] -> Index -> IndexedSet a -> [a]
+queryRangeByIndex conds ix (IndexedSet s m i) = case fromJust $ M.lookup ix m of
+  SetIndex fn indexMap -> let allkeys = setIntersections $ P.map (keysForCond (fromJust $ cast $ M.keysSet indexMap)) conds in
+    P.concatMap (\key -> S.toList $ maybeSet $ M.lookup key indexMap) (fromJust $ cast $ S.toList allkeys)
+      where keysForCond :: (Ord a, Typeable a)  => Set a -> Cond a -> Set a
+            keysForCond keys (EQ a)  = if S.member a keys then S.singleton a else S.empty
+            keysForCond keys (NE a)  = if S.member a keys then S.empty else S.singleton a
+            keysForCond keys (GT a)  = snd $ S.split (fromJust $ cast a) keys
+            keysForCond keys (LT a)  = fst $ S.split a keys
+            keysForCond keys (LTE a) = S.union (keysForCond keys (LT a)) (keysForCond keys (EQ a))            
+            keysForCond keys (GTE a) = S.union (keysForCond keys (GT a)) (keysForCond keys (EQ a))
+
+setIntersections [x] = x
+setIntersections (x:xs) = S.intersection x (setIntersections xs)
 
 -- | Create an empty IndexedSet with no indices. Running time: O(1)
 empty :: (Ord a) => IndexedSet a
@@ -82,6 +100,9 @@ map :: (Ord a) => (a -> a) -> IndexedSet a -> IndexedSet a
 map fn (IndexedSet s m i) = IndexedSet newset (rebuildIndices newset m) i where
   newset = S.map fn s
   rebuildIndices newset ixMap = M.map (rebuildIndex newset) ixMap
+
+-- | Used for querying an index.
+data Cond a = forall a. (Ord a, Typeable a) => GT a | LT a | NE a | GTE a | LTE a | EQ a
 
 ---- Private functions ----
 
