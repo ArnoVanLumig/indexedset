@@ -5,6 +5,10 @@
 module IndexedSet ( queryIndex
                   , queryRangeIndex
                   , rebuildIndex
+                  , insertInIndex
+                  , deleteFromIndex
+                  , mapIndex
+                  , filterIndex
                   , deriveMap
                   , deriveFilter
                   , deriveInsert
@@ -47,14 +51,7 @@ si fn = SetIndex fn M.empty
 -- | Used for querying an index.
 data Cond a = (Ord a) => CondGT a | CondLT a | CondNE a | CondGTE a | CondLTE a | CondEQ a
 
----- Private functions ----
-
-maybeSet (Just lst) = lst
-maybeSet Nothing = S.empty
-
-setIntersections [x] = x
-setIntersections (x:xs) = S.intersection x (setIntersections xs)
-
+-- | Insert an item into an index. Running time is O(log n)
 insertInIndex item (SetIndex fn mp) = SetIndex fn (M.alter (insOrCons item) (fn item) mp)
   where insOrCons a (Just set) = Just (S.insert a set)
         insOrCons a Nothing = Just (S.singleton a)
@@ -72,7 +69,13 @@ mapIndex :: (Ord a, Ord b) => (a -> a) -> SetIndex a b -> SetIndex a b
 mapIndex mapfn (SetIndex fn mp) = rebuildIndex newset (SetIndex fn mp) where
   newset = S.map mapfn (S.unions $ M.elems mp)
 
----- Private datatypes ----
+---------------------------
+
+maybeSet (Just lst) = lst
+maybeSet Nothing = S.empty
+
+setIntersections [x] = x
+setIntersections (x:xs) = S.intersection x (setIntersections xs)
 
 data SetIndex a b = (Ord a, Ord b) => SetIndex (a -> b) (Map b (Set a))
 

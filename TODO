@@ -1,6 +1,3 @@
-- Allow for range queries on indices with Ord instances (requires
-   moving from Map to some other tree type)
-- Check if removing the Typeable requirement is possible
 - Measure performance on large datasets
-- Expand test suite
-- Proper documentation
+- Create test suite
+- Perhaps derive some other useful functions
