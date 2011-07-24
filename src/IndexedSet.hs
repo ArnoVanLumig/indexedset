@@ -14,7 +14,7 @@ module IndexedSet ( queryIndex
                   , deriveInsert
                   , deriveDelete
                   , si
-                  , SetIndex
+                  , SetIndex(..)
                   , Cond(..)
                   ) where
 

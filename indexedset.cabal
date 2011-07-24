@@ -1,0 +1,22 @@
+Name:                indexedset
+Version:             0.1
+Synopsis:            Haskell set indexing on arbitrary attributes
+Description:         IndexedSet allows for indexing and querying of sets, increasing the performance if there are more queries on a limited set of attributes than inserts
+Homepage:            https://github.com/ArnoVanLumig/indexedset
+License:             BSD3
+License-file:        LICENSE
+Author:              Arno van Lumig
+Maintainer:          arnovanlumig@gmail.com
+Category:            Data
+Build-type:          Simple
+Extra-source-files:  README.md
+Cabal-version:       >=1.2
+
+Library
+  hs-source-dirs: src
+  Exposed-modules:     IndexedSet
+
+  Build-depends:
+    base >= 4 && < 5,
+    template-haskell,
+    containers >= 0.4
