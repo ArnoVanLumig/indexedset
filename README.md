@@ -7,6 +7,11 @@ Querying on indices is O(log n), rather than the O(n) performance you would get 
 
 See Main.hs for a simple example application that gives an overview of the basic functionality, and take a look at the source code in IndexedSet.hs to get a better idea of the workings of this library.
 
+Take a look at [ixset][0] and [higgsset][1], they provide similar functionality and may be more suitable for your purpose.
+
+[0]: http://hackage.haskell.org/packages/archive/ixset/1.0.2/doc/html/Data-IxSet.html
+[1]: http://hackage.haskell.org/package/HiggsSet-0.1
+
 How does it work?
 =================
 
